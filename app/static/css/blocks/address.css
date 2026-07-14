@@ -1,0 +1,18 @@
+#address-suggestions {
+    background: white;
+    border: 1px solid #ddd;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+#address-suggestions .list-group-item {
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+}
+
+#address-suggestions .list-group-item:hover,
+#address-suggestions .list-group-item.active {
+    background-color: #5f9efc8c;
+    /* Bootstrap blue */
+    color: white;
+}

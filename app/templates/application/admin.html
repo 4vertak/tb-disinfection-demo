@@ -1,0 +1,315 @@
+{% extends "main/base.html" %} {% block style %}{% assets
+'application_admin_css' %}
+<link
+  href="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.css"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="{{ ASSET_URL }}" />{% endassets %} {% endblock %}
+{% block title %}Заявки{% endblock title %} {% block content %}
+
+<div class="container py-5">
+  <div class="content">
+    <div class="db-pb-5">
+      <div class="row g-4">
+        <div class="col-12 col-xxl-6">
+          <div class="mb-6">
+            <h2 class="mb-2">Панель администрирования</h2>
+            <h5 class="text-secondary fw-semibold">
+              Вот что происходит прямо сейчас
+            </h5>
+          </div>
+          <div class="row align-items-center g-4">
+            <div class="col-12 col-md-3">
+              <a
+                  href="{{ url_for('user.users') }} "
+                >
+              <div class="d-flex align-items-center">
+                <span
+                  class="fa-solid fa-users fa-xl text-info-light"
+                  style="min-height: 26px; min-width: 26px"
+                >
+                </span>
+                
+                <div class="ms-3">
+                  <h4 class="mb-0" >
+                    <font style="vertical-align: inherit"
+                      ><font style="vertical-align: inherit"
+                        ><span id="total-users"
+                          >{{ total_info['total_users'] }}</span
+                        >
+                        <span id="users-text">пользователей</span></font
+                      ></font
+                    >
+                  </h4>
+                  <p class="text-body-secondary fs-9 mb-0">
+                    <font style="vertical-align: inherit"
+                      ><font style="vertical-align: inherit"
+                        >Зарегистрировано</font
+                      ></font
+                    >
+                  </p>
+                </div>
+              
+              </div>
+            </a>
+            </div>
+            <div class="col-12 col-md-3">
+              <a
+              href="#myTableApplications"
+            >
+              <div class="d-flex align-items-center">
+                <span
+                  class="fa-solid fa-bars fa-xl text-warning-light"
+                  style="min-height: 26px; min-width: 26px"
+                >
+                </span>
+                <div class="ms-3">
+                  <h4 class="mb-0">
+                    <span id="total-applications"
+                      >{{ total_info['total_applications'] }}</span
+                    >
+                    <span id="applications-text">заявок</span>
+                  </h4>
+                  <p class="text-body-secondary fs-9 mb-0">
+                    За всё время подано
+                  </p>
+                </div>
+              </div>
+            </a>
+            </div>
+            <div class="col-12 col-md-3">
+              <a
+              href="#myTableChanges"
+            >
+              <div class="d-flex align-items-center">
+                <span
+                  class="fa-solid fa-list-check fa-xl text-success-light"
+                  style="min-height: 26px; min-width: 26px"
+                >
+                </span>
+                <div class="ms-3">
+                  <h4 class="mb-0">
+                    <span id="total-changes"
+                      >{{ total_info['total_changes'] }}</span
+                    >
+                    <span id="changes-text">изменений</span>
+                  </h4>
+                  <p class="text-body-secondary fs-9 mb-0">Внесено в журнал</p>
+                </div>
+              </div>
+            </a>
+            </div>
+          </div>
+          <hr class="bg-body-secondary mb-4 mt-4" />
+          {% include 'main/_flash.html' %}
+        <div class="row flex-between-center mb-4 g-3">
+          <div class="col-auto">
+          </div>
+          <div class="col-6 col-sm-4">
+            <form id="periodForm">
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label for="selectPeriod" class="form-label">Период:</label>
+                    <select name="period" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="{{ period }}" selected>{{ period }}</option>
+                        <option value="январь">январь</option>
+                        <option value="февраль">февраль</option>
+                        <option value="март">март</option>
+                        <option value="апрель">апрель</option>
+                        <option value="май">май</option>
+                        <option value="июнь">июнь</option>
+                        <option value="июль">июль</option>
+                        <option value="август">август</option>
+                        <option value="сентябрь">сентябрь</option>
+                        <option value="октябрь">октябрь</option>
+                        <option value="ноябрь">ноябрь</option>
+                        <option value="декабрь">декабрь</option>
+                        <option value="1-й квартал">1-й квартал</option>
+                        <option value="2-й квартал">2-й квартал</option>
+                        <option value="3-й квартал">3-й квартал</option>
+                        <option value="4-й квартал">4-й квартал</option>
+                        <option value="1-е полугодие">1-е полугодие</option>
+                        <option value="2-е полугодие">2-е полугодие</option>
+                        <option value="год">год</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label for="selectYear" class="form-label">Год:</label>
+                    <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
+                      {% for year_option in available_years %}
+                        <option value="{{ year_option }}" {% if year_option == selected_year %}selected{% endif %}>
+                          {{ year_option }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class ="mb-6">
+        <canvas
+          id="monthlyChart"
+          width="800"
+          height="200"
+        ></canvas>
+    </div>
+      <div class="col-12 col-xxl-6">
+
+          <div class="row g-3">
+            <div class="card">
+              <div class="container">
+                <table id="myTableChanges">
+                  <thead>
+                    <tr>
+                      <th>№ п/п</th>
+                      <th>Дата изменения</th>
+                      <th>№ заявки</th>
+                      <th>Логин</th>
+                      <th>Тип пользователя</th>
+                      <th>Характер изменений</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for log, login, user_type in audit_logs %}
+                    <tr>
+                      <td style="text-align: center">{{ loop.index }}</td>
+                      <td style="text-align: center">
+                        {{ log.change_time|localtime }}
+                      </td>
+                      <td style="text-align: center">
+                        {{ log.application_id }}
+                      </td>
+                      <td style="text-align: center">
+                          {{ login }}
+                      </td>
+                      <td style="text-align: center">
+                        {% if user_type == "doctor" %}
+                          Врач
+                        {% elif user_type == "disinfector" %}
+                          Дезинфектор
+                        {% elif user_type == "admin" %}
+                          Администратор
+                        {% else %}
+                          Неизвестно
+                        {% endif %}
+                      </td>
+                      <td style="text-align: center">
+                        {{ log.change_type }}
+                      </td>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+       
+        <hr class="bg-body-secondary mb-4 mt-4" />
+
+      </div>
+    </div>
+  </div>
+
+  {% endblock %} {% block script %}{% assets 'application_admin_js' %}
+  <script src="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.js"></script>
+
+  <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+
+  <script>
+    // Диаграмма по месяцам
+    const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+    const monthlyChart = new Chart(ctxMonthly, {
+      type: 'bar',
+      data: {
+        labels: {{ months|tojson }},
+        datasets: [
+          {
+            label: 'INSERT',
+            data: {{ insert_data|tojson }},
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'UPDATE',
+            data: {{ update_data|tojson }},
+            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+            borderColor: 'rgba(255, 159, 64, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'DELETE',
+            data: {{ delete_data|tojson }},
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
+  <script>
+
+   // Данные для диаграммы
+  const userData = {
+    labels: ['Администраторы', 'Врачи', 'Дезинфекторы'],
+    datasets: [{
+      label: 'Пользователи',
+      data: [
+        {{ total_info['count_admins'] }},
+        {{ total_info['count_doctors'] }},
+        {{ total_info['count_disinfectors'] }}
+      ],
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.8)',  
+        'rgba(54, 162, 235, 0.8)',  
+        'rgba(255, 205, 86, 0.8)'  
+      ],
+      borderColor: [
+        'rgba(255, 99, 132, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 205, 86, 1)'
+      ],
+      borderWidth: 1,
+      hoverOffset: 4
+    }]
+  };
+
+  // Конфигурация диаграммы
+  const config = {
+    type: 'doughnut',
+    data: userData,
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',  // Положение легенды
+        },
+        tooltip: {
+          enabled: true  // Включить подсказки
+        }
+      }
+    }
+  };
+
+  // Инициализация диаграммы
+  const userPieChart = new Chart(
+    document.getElementById('userPieChart'),
+    config
+  );
+    
+  </script>
+
+  {% endassets %}{% endblock %}
+</div>

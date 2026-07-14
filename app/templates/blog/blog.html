@@ -1,0 +1,137 @@
+{% extends "main/base.html" %}
+{% block style %}{% assets 'blog_blog_css' %}<link rel="stylesheet" href="{{ ASSET_URL }}" />{% endassets %}{% endblock %}
+
+{% block title %}Блог - Новости и обновления системы{% endblock %}
+
+{% block content %}
+<div class="blog-container">
+    <!-- Заголовок блога -->
+    <div class="blog-header">
+        <h1 class="blog-title">Блог проекта</h1>
+        {% if current_user.is_authenticated and current_user.user_type == 'admin' %}
+        <div class="blog-actions">
+            <a href="{{ url_for('blog.add_post') }}" class="blog-add-post">
+                <i class="fas fa-plus"></i>Добавить пост
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% include 'main/_flash.html' %}
+
+    <div class="blog-grid">
+        <div class="blog-posts">
+            {% for post in posts_pagination.items %}
+            <article class="blog-post-card">
+                {% if post.image %}
+                <img src="{{ url_for('static', filename=post.image) }}"
+                     alt="{{ post.title }}"
+                     class="post-image">
+                {% else %}
+                <div class="post-image-placeholder">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                {% endif %}
+
+                <div class="post-content">
+                    <div class="post-meta">
+                        <span class="post-date">
+                            <i class="fas fa-calendar-alt"></i>
+                            {{ post.created_at.strftime('%d.%m.%Y') }}
+                        </span>
+                        <span class="post-category">Новости</span>
+                    </div>
+
+                    <h2 class="post-title">
+                        <a href="{{ url_for('blog.post_detail', post_id=post.id) }}">
+                            {{ post.title }}
+                        </a>
+                    </h2>
+
+                    <p class="post-excerpt">
+                        {{ post.excerpt or (post.content[:200] + '...' if post.content|length > 200 else post.content) }}
+                    </p>
+
+                    <a href="{{ url_for('blog.post_detail', post_id=post.id) }}" class="post-read-more">
+                        Читать далее
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+            {% endfor %}
+
+            {% if not posts_pagination.items %}
+            <div class="blog-empty-state">
+                <div class="mb-4">
+                    <i class="fas fa-newspaper fa-4x"></i>
+                </div>
+                <h3 class="text-muted mb-3">Пока нет новостей</h3>
+                <p class="text-muted mb-4">Здесь будут появляться последние новости и обновления системы</p>
+                {% if current_user.is_authenticated and current_user.user_type == 'admin' %}
+                <a href="{{ url_for('blog.add_post') }}" class="blog-action-link">
+                    <i class="fas fa-plus me-2"></i>Добавить первую новость
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Пагинация -->
+            {% if posts_pagination.pages > 1 %}
+            <nav class="blog-pagination">
+                <ul class="pagination">
+                    {% if posts_pagination.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('blog.index', page=posts_pagination.prev_num) }}">
+                            <i class="fas fa-chevron-left me-1"></i> Назад
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            <i class="fas fa-chevron-left me-1"></i> Назад
+                        </span>
+                    </li>
+                    {% endif %}
+
+                    {% for page_num in posts_pagination.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                        {% if page_num %}
+                            {% if page_num == posts_pagination.page %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('blog.index', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if posts_pagination.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('blog.index', page=posts_pagination.next_num) }}">
+                            Вперед <i class="fas fa-chevron-right ms-1"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            Вперед <i class="fas fa-chevron-right ms-1"></i>
+                        </span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}{% assets 'blog_blog_js' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}{% endblock %}

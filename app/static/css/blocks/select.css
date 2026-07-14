@@ -1,0 +1,18 @@
+/* Контейнер select2 */
+.select2-container .select2-selection--single {
+    height: auto !important;
+    min-height: calc(1.5em + 1.75rem + 4px) !important;
+    /* как у form-control */
+    padding: .875rem 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    border: 2px solid var(--bs-border-color) !important;
+    border-radius: var(--bs-border-radius) !important;
+}
+
+/* Текст в select2 */
+.select2-container .select2-selection__rendered {
+    white-space: normal !important;
+    /* многострочный текст */
+    line-height: 1.5 !important;
+}

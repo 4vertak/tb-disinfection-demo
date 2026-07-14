@@ -1,0 +1,17 @@
+{% extends "main/base.html" %}
+
+{% block title %}Ошибка {{ error_code }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <h1 class="display-1 text-muted">{{ error_code }}</h1>
+            <h2 class="mb-4">{{ message }}</h2>
+            <a href="{{ url_for('application.index') }}" class="btn btn-primary">
+                <i class="fas fa-home"></i> Вернуться на главную
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

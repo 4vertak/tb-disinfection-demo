@@ -1,0 +1,46 @@
+{% macro stats_card(value, text, icon, color, id_suffix="") %}
+<div class="p-4">
+  <div class="d-flex align-items-center">
+    <span class="fa-stack" style="min-height: 46px; min-width: 46px">
+      <span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-{{ color }}-light"
+            data-fa-transform="shrink-5.5 down-1 rotate--10 left-5"></span>
+      <span class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-{{ color }}"
+            data-fa-transform="shrink-6 up-2 left-2"></span>
+      <span class="fa-stack-1x {{ icon }} fa-xl text-{{ color }}"
+            data-fa-transform="up-5.5 right-8"></span>
+    </span>
+    <div class="ms-3 p-2">
+      <h3 class="mb-0">
+        <span id="{{ id_suffix }}-value">{{ value }}</span>
+        <span id="{{ id_suffix }}-text"></span>
+      </h3>
+      <p class="text-body-secondary fs-9 mb-1">{{ text }}</p>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro data_table(table_id, columns, data, options={}) %}
+<div class="card">
+  <div class="container">
+    <table id="{{ table_id }}" class="display">
+      <thead>
+        <tr>
+          {% for column in columns %}
+          <th style="text-align: center">{{ column }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in data %}
+        <tr>
+          {% for column in columns %}
+          <td style="text-align: center">{{ row[column] }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endmacro %}

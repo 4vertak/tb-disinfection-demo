@@ -1,0 +1,70 @@
+{% extends "main/base.html" %}
+{% block style %}{% assets 'blog_blog_css' %}<link rel="stylesheet" href="{{ ASSET_URL }}" />{% endassets %}{% endblock %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="blog-container">
+    <!-- Назад к списку -->
+    <div class="mb-4">
+        <a href="{{ url_for('blog.index') }}" class="blog-action-link back-to-list">
+            <i class="fas fa-arrow-left"></i>
+            Назад к списку
+        </a>
+    </div>
+
+    <article class="blog-post-card">
+        {% if post.image %}
+        <img src="{{ url_for('static', filename=post.image) }}"
+             alt="{{ post.title }}"
+             class="post-image">
+        {% else %}
+        <div class="post-image-placeholder">
+            <i class="fas fa-newspaper"></i>
+        </div>
+        {% endif %}
+
+        <div class="post-content">
+            <div class="post-meta">
+                <span class="post-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    {{ post.created_at.strftime('%d.%m.%Y') }}
+                </span>
+                {% if post.updated_at and post.updated_at != post.created_at %}
+                <span class="post-date">
+                    <i class="fas fa-edit"></i>
+                    Обновлено: {{ post.updated_at.strftime('%d.%m.%Y') }}
+                </span>
+                {% endif %}
+                <span class="post-category">Новости</span>
+            </div>
+
+            <h1 class="post-title" style="font-size: 2.5rem; margin-bottom: 2rem;">{{ post.title }}</h1>
+
+            <div class="post-content-full">
+                {{ post.content | sanitize_and_nl2br }}
+            </div>
+
+            {% if current_user.is_authenticated and current_user.user_type == 'admin' %}
+            <div class="mt-5 pt-4" style="border-top: 1px solid #e5e5e5;">
+                <div class="d-flex gap-3 justify-content-end">
+                    <a href="{{ url_for('blog.edit_post', post_id=post.id) }}" class="blog-action-link">
+                        <i class="fas fa-edit me-1"></i>Редактировать
+                    </a>
+                    <form method="post" action="{{ url_for('blog.delete_post', post_id=post.id) }}" class="d-inline">
+                        <button type="submit" class="blog-action-link btn-danger-style" 
+                                onclick="return confirm('Удалить эту новость?')">
+                            <i class="fas fa-trash me-1"></i>Удалить
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </article>
+</div>
+{% endblock %}
+
+{% block script %}{% assets 'blog_blog_js' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "main/base.html" %}
+
+{% block style %}{% assets 'blog_blog_css' %}<link rel="stylesheet" href="{{ ASSET_URL }}" />{% endassets %}{% endblock %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="blog-container">
+    <!-- Назад к списку в едином стиле -->
+    <div class="mb-4">
+        <a href="{{ url_for('blog.index') }}" class="blog-action-link back-to-list">
+            <i class="fas fa-arrow-left me-1"></i>Назад к списку
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header"">
+            <h2 class="card-title mb-0 text-center">
+                {{ title }}
+            </h2>
+        </div>
+
+        <div class="card-body p-4 blog-form">
+            {% include 'main/_flash.html' %}
+
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {{ form.hidden_tag() }}
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        {{ form.title.label(class="form-label fw-semibold") }}
+                        {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""),
+                                     placeholder="Введите заголовок новости") }}
+                        {% for error in form.title.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-12">
+                        {{ form.excerpt.label(class="form-label fw-semibold") }}
+                        {{ form.excerpt(class="form-control", rows="3",
+                                       placeholder="Краткое описание новости (необязательно)") }}
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Если не заполните, будет сгенерировано автоматически из первых строк контента
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        {{ form.content.label(class="form-label fw-semibold") }}
+                        {{ form.content(class="form-control font-monospace" + (" is-invalid" if form.content.errors else ""),
+                                      rows="15",
+                                      placeholder="Введите полный текст новости...") }}
+                        {% for error in form.content.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text mt-2">
+                            <i class="fas fa-code me-1"></i>
+                            Поддерживается HTML-разметка
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card h-100 border-secondary">
+                            <div class="card-body">
+                                {{ form.image.label(class="form-label fw-semibold") }}
+                                {{ form.image(class="form-control") }}
+                                <div class="form-text mt-2">
+                                    <strong>Форматы:</strong> JPG, JPEG, PNG, GIF, WEBP
+                                    {% if post and post.image %}
+                                    <br>
+                                    <strong>Текущее:</strong>
+                                    <a href="{{ url_for('static', filename=post.image) }}"
+                                       target="_blank" class="text-decoration-none">
+                                        <i class="fas fa-image me-1"></i>Просмотреть
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card h-100 border-secondary">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        {{ form.is_published(class="form-check-input") }}
+                                        {{ form.is_published.label(class="form-check-label") }}
+                                    </div>
+                                </div>
+
+                                {% if post %}
+                                <div class="text-muted small">
+                                    <p class="mb-1">
+                                        <strong>Создан:</strong>
+                                        {{ post.created_at.strftime('%d.%m.%Y %H:%M') }}
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>Изменен:</strong>
+                                        {{ post.updated_at.strftime('%d.%m.%Y %H:%M') }}
+                                    </p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <hr class="my-4">
+                        <div class="d-flex gap-3">
+                            {{ form.submit(class="btn-blog-action", value="Сохранить") }}
+                            <a href="{{ url_for('blog.index') }}" class="blog-action-link">Отмена</a>
+                            {% if post %}
+                            <a href="{{ url_for('blog.post_detail', post_id=post.id) }}" class="blog-action-link">Просмотр</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

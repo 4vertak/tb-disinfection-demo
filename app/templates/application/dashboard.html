@@ -1,0 +1,760 @@
+{% extends "main/base.html" %} 
+{% block style %}{% assets 'application_all_css' %}
+<link href="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ ASSET_URL }}" />
+{% endassets %} 
+{% endblock %}
+
+{% block title %}Заявки{% endblock title %} 
+
+{% block content %}
+<div class="container py-5">
+  <div class="content">
+    <div class="db-pb-5">
+      <div class="row g-4">
+        <div class="col-12 col-xxl-6">
+          <div class="db-mb-8">
+            <h2 class="mb-2">Информационная панель</h2>
+            <h5 class="text-secondary fw-semibold">
+              Вот что происходит прямо сейчас
+            </h5>
+          </div>
+          {% include 'main/_flash.html' %}
+          
+          <!-- СТАТИСТИКА -->
+          <div class="d-flex flex-row flex-wrap align-items-center g-4">
+            <div class="p-4">
+              <div class="d-flex align-items-center">
+                <span class="fa-stack" style="min-height: 46px; min-width: 46px">
+                  <span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-info-light" data-fa-transform="shrink-5.5 down-1 rotate--10 left-5"></span>
+                  <span class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-info" data-fa-transform="shrink-6 up-2 left-2"></span>
+                  <span class="fa-stack-1x fa-solid fa-star fa-xl text-info" data-fa-transform="up-5.5 right-8"></span>
+                </span>
+                <div class="ms-3 p-2">
+                  <div class="d-flex align-items-baseline gap-1 flex-wrap justify-content-center">
+                    <h3 class="mb-0">
+                      <span id="total-applications">{{ total_info.get('total_with_carry_over', total_info['total']) }}</span>
+                    </h3>
+                    <span class="badge bg-info bg-opacity-10 text-info fs-10 px-2 py-0">
+                      +<span id="carry-over-applications">{{ total_info.get('carry_over', 0) }}</span> пер.
+                    </span>
+                  </div>
+                  <p class="text-body-secondary fs-9 mb-1">Поступило</p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="d-flex align-items-center">
+                <span
+                  class="fa-stack"
+                  style="min-height: 46px; min-width: 46px"
+                >
+                  <span
+                    class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-warning-light"
+                    data-fa-transform="shrink-5.5 down-1 rotate--10 left-5"
+                  ></span>
+
+                  <span
+                    class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-warning"
+                    data-fa-transform="shrink-6 up-2 left-2"
+                  ></span>
+                  <span
+                    class="fa-stack-1x fa-solid fa-cog fa-xl text-warning"
+                    data-fa-transform="up-5.5 right-8"
+                  ></span>
+                </span>
+                <div class="ms-3 p-2">
+                  <h3 class="mb-1 text-center">
+                    <span id="application-in-progress"
+                      >{{ total_info['in_progress'] }}</span
+                    >
+                    <span id="in-progress-text"></span>
+                  </h3>
+                  <p class="text-body-secondary fs-9 mb-1">В работе</p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="d-flex align-items-center">
+                <span
+                  class="fa-stack"
+                  style="min-height: 46px; min-width: 46px"
+                >
+                  <span
+                    class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-success-light"
+                    data-fa-transform="shrink-5.5 down-1 rotate--10 left-5"
+                  ></span>
+
+                  <span
+                    class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-success"
+                    data-fa-transform="shrink-6 up-2 left-2"
+                  ></span>
+                  <span
+                    class="fa-stack-1x fa-solid fa-check fa-xl text-success"
+                    data-fa-transform="up-5.5 right-8"
+                  ></span>
+                </span>
+                <div class="ms-3 p-2">
+                  <h3 class="mb-0 text-center"><span id="applications-completed"
+                    >{{ total_info['completed'] }}<span id="completed-text"></span></h3>
+                  <p class="text-body-secondary fs-9 mb-1">Исполнено</p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="d-flex align-items-center">
+                <span
+                  class="fa-stack"
+                  style="min-height: 46px; min-width: 46px"
+                >
+                  <span
+                    class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-danger-light"
+                    data-fa-transform="shrink-5.5 down-1 rotate--10 left-5"
+                  ></span>
+
+                  <span
+                    class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-danger"
+                    data-fa-transform="shrink-6 up-2 left-2"
+                  ></span>
+                  <span
+                    class="fa-stack-1x fa-solid fa-remove fa-xl text-danger"
+                    data-fa-transform="up-5.5 right-8"
+                  ></span>
+                </span>
+                <div class="ms-3 p-2">
+                  <h3 class="mb-0 text-center">
+                    <span id="applications-refusal">{{ total_info['refusal'] }}</span> <!-- Изменил ID -->
+                  </h3>
+                  <p class="text-body-secondary fs-9 mb-1">Отказов</p>
+                </div>
+              </div>
+            </div>
+            {% if current_user.user_type == 'disinfector' or current_user.user_type == 'admin' %}
+            <div class="p-4">
+              <div class="d-flex align-items-center">
+                <span
+                  class="fa-stack"
+                  style="min-height: 46px; min-width: 46px"
+                >
+                  <span
+                    class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-success-light"
+                    data-fa-transform="shrink-5.5 down-1 rotate--10 left-5"
+                  ></span>
+
+                  <span
+                    class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-success"
+                    data-fa-transform="shrink-6 up-2 left-2"
+                  ></span>
+                  <span
+                    class="fa-stack-1x fa-solid fa-cube fa-xl text-success"
+                    data-fa-transform="up-5.5 right-8"
+                  ></span>
+                </span>
+                <div class="ms-3 p-2">
+                  <h3 id="square-disinfection" class="mb-0 text-center">
+                            {{ "%.1f"|format(total_info.square_disinfection|default(0)) }}
+                  </h3>
+                  <p id="square-disinfection-text" class="text-body-secondary mt-2 mb-1">Обработано м²</p>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          
+          <hr class="bg-body-secondary mb-6 mt-4" />
+          <div class="row flex-between-center mb-0 g-3">
+            <!-- КНОПКИ ПЕРЕКЛЮЧЕНИЯ ВИДА -->
+            <div class="col-12">
+              <div class="tab-nav">
+                <button class="tab-btn active" data-view="monthly" type="button">
+                  <i class="fas fa-chart-line"></i>
+                  <span>Основная статистика</span>
+                </button>
+                <button class="tab-btn" data-view="areas" type="button">
+                  <i class="fas fa-map-marked-alt"></i>
+                  <span>Участки и очаги</span>
+                </button>
+                {% if current_user.user_type == 'disinfector' or current_user.user_type == 'admin' %}
+                <button class="tab-btn" data-view="disinfectors" type="button">
+                  <i class="fas fa-user-md"></i>
+                  <span>Дезинфекторы</span>
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          
+            <div class="col-6 col-sm-8 ms-auto">
+                <form id="periodForm">
+                  <div class="row g-2 ">
+                    <div class="flex-grow-1"></div>
+                    
+                    <div class="col-6 ms-auto">
+                      <select name="period" id="selectPeriod" class="form-select form-select-sm">
+                        <option value="{{ period }}" selected>{{ period }}</option>
+                        <option value="январь">январь</option>
+                        <option value="февраль">февраль</option>
+                        <option value="март">март</option>
+                        <option value="апрель">апрель</option>
+                        <option value="май">май</option>
+                        <option value="июнь">июнь</option>
+                        <option value="июль">июль</option>
+                        <option value="август">август</option>
+                        <option value="сентябрь">сентябрь</option>
+                        <option value="октябрь">октябрь</option>
+                        <option value="ноябрь">ноябрь</option>
+                        <option value="декабрь">декабрь</option>
+                        <option value="1-й квартал">1-й квартал</option>
+                        <option value="2-й квартал">2-й квартал</option>
+                        <option value="3-й квартал">3-й квартал</option>
+                        <option value="4-й квартал">4-й квартал</option>
+                        <option value="1-е полугодие">1-е полугодие</option>
+                        <option value="2-е полугодие">2-е полугодие</option>
+                        <option value="год">год</option>
+                      </select>
+                    </div>
+                    <div class="col-3">
+                      <select name="year" id="selectYear" class="form-select form-select-sm">
+                        {% for year_option in available_years %}
+                          <option value="{{ year_option }}" {% if year_option == selected_year %}selected{% endif %}>
+                            {{ year_option }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </form>
+              </div>
+          
+            <!-- КОНТЕЙНЕР ДЛЯ ОСНОВНОЙ СТАТИСТИКИ -->
+            <div id="monthlyContainer" class="dashboard-container tab-content active">
+              <!-- Добавленный блок с кнопками -->
+              <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
+                <!-- Кнопка "Скачать отчет" -->
+                <a class="btn btn-outline-secondary d-flex align-items-center" style="border: none; box-shadow: none;" 
+                  id="downloadReport" 
+                  href="{{ url_for('dashboard.generate_word_report', period=period, year=selected_year) }}">
+                  <i class="fa-solid fa-file-arrow-down fs-4 me-1" aria-hidden="true"></i>
+                  <span>Скачать отчет</span>
+                </a>
+                
+                <!-- Выпадающий список Excel -->
+                 {% if current_user.user_type == 'disinfector' or current_user.user_type == 'admin' %}
+                <div class="dropdown">
+                  <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" 
+                          type="button" data-bs-toggle="dropdown" 
+                          style="border: none; box-shadow: none;">
+                    <i class="fas fa-file-excel  fs-4 me-1"></i>
+                    <span class="ms-1">Excel</span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item" 
+                        data-export-type="excel" 
+                        href="{{ url_for('import_export.export_excel', period=period, year=selected_year) }}">
+                          <i class="fas fa-download"></i> Экспорт данных
+                      </a>
+                    </li>
+                    
+                  </ul>
+                </div>
+                 {% endif %}
+              </div>
+              <div class="d-flex justify-content-center pt-3 flex-1">
+                      <div>
+                        <h5 class="mb-1">
+                          Количество заявок за выбранный период <span class="badge badge-phoenix badge-phoenix-warning rounded-pill fs-9 ms-2"></span>
+                        </h5>
+                      </div>
+                    </div>
+              
+              <canvas id="monthlyChart" width="800" height="200"></canvas>
+              
+              <hr class="bg-body-secondary mb-4 mt-4" />
+              
+              <div class="col-12 col-xxl-6">
+                <div class="row g-3">
+                  <div class="d-flex justify-content-center pt-3 flex-1">
+                      <div>
+                        {% if current_user.user_type != 'doctor'%}
+                        <h5 class="mb-1">
+                          Разбивка выполненных заявок<span class="badge badge-phoenix badge-phoenix-warning rounded-pill fs-9 ms-2"></span>
+                        </h5>
+                        {% else %}
+                        <h5 class="mb-1">
+                          Разбивка поданных заявок<span class="badge badge-phoenix badge-phoenix-warning rounded-pill fs-9 ms-2"></span>
+                        </h5>
+                        {% endif %}
+                        
+                      </div>
+                    </div>
+                  <div class="card">
+                    <div class="container">
+                      <table class="table">
+                        <thead>
+                          <tr class="table">
+                            <th>Эпидгруппа/участки</th>
+                            {% for area in areas %}
+                              <th>{{ area }}</th>
+                            {% endfor %}
+                            <th>ИТОГО</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for row in table_data %}
+                          <tr {% if 'ВСЕГО' in row.focus or 'посмертно' in row.focus %}class="font-weight-bold table"{%else%}class="table"{% endif %}>
+                            <td>{{ row.focus }}</td>
+                            {% for area in areas %}
+                              <td>{{ row.get(area, 0) }}</td>
+                            {% endfor %}
+                            <td>{{ row.total }}</td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> <!-- Конец monthlyContainer -->
+          
+          <!-- КОНТЕЙНЕР ДЛЯ УЧАСТКОВ И ОЧАГОВ -->
+          <div id="areasContainer" class="dashboard-container tab-content d-none">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                      <div>
+                        <h5 class="mb-1">
+                          Всего заявок по участкам:<span class="badge badge-phoenix badge-phoenix-warning rounded-pill fs-9 ms-2"></span>
+                        </h5>
+                        <!-- <h6 class="text-body-tertiary">За {{ period }}</h6>-->
+                      </div>
+                    </div>
+                    <div class="d-flex justify-content-center pt-3 flex-1">
+                      <canvas id="areasChart" width="400" height="200"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-50">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                      <div>
+                        <h5 class="mb-1">
+                          Разбивка по группам очагов<span class="badge badge-phoenix badge-phoenix-warning rounded-pill fs-9 ms-2"></span>
+                        </h5>
+                        <!-- <h6 class="text-body-tertiary">За {{ period }}</h6>-->
+                      </div>
+                    </div>
+                    <div class="d-flex justify-content-center pt-3 flex-1">
+                      <canvas id="focusChart" width="400" height="200"></canvas>
+                    </div>
+                  </div>
+                </div>
+                <div class="card h-50">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                      <div>
+                        <h5 class="mb-1">
+                          Разбивка по участкам<span class="badge badge-phoenix badge-phoenix-warning rounded-pill fs-9 ms-2"></span>
+                        </h5>
+                        <!-- <h6 class="text-body-tertiary">За {{ period }}</h6>-->
+                      </div>
+                    </div>
+                    <div class="d-flex justify-content-center pt-3 flex-1">
+                      <canvas id="AreasChartDin" width="400" height="200"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr class="bg-body-secondary mb-4 mt-4" />
+          </div> <!-- Конец areasContainer -->
+          
+          <!-- КОНТЕЙНЕР ДЛЯ ДЕЗИНФЕКТОРОВ -->
+          <div id="disinfectorsContainer" class="dashboard-container tab-content d-none">
+            {% if current_user.user_type == 'disinfector' or current_user.user_type == 'admin' %}
+              <!-- Топ-3 дезинфекторов с фоном -->
+              <div class="row mb-4">
+                <div class="col-12">
+                  <!-- Блок заголовка с фоном -->
+                  <div class="top-disinfectors-header mb-4">
+                    <div class="header-content">
+                      <h2 id="topDisinfectorsTitle" class="text-center mb-0">Лучшие дезинфекторы</h2>
+                      <div class="header-stats mt-3">
+                        <div class="d-flex justify-content-center align-items-center flex-wrap ">
+                          <div class="stat-item me-4">
+                            <i class="fas fa-users me-1"></i>
+                            <span >Всего: {{ top_disinfectors|length if top_disinfectors else 0 }} чел.</span>
+                          </div>
+                          
+                          <div class="stat-item">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            <span>Период:  {% if period == 'год'%} {{selected_year }} год{% else %}{{ period }} {{ selected_year }} года{%endif%}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="row g-4 justify-content-center">
+                    
+                    {% if top_disinfectors and top_disinfectors|length > 0 %}
+                      {% for disinfector in top_disinfectors[:3] %}
+                        <div class="col-md-4">
+                          <div class="card h-100 border-0 shadow-sm {% if loop.index == 1 %}border-warning border-2{% else %}border-light{% endif %}">
+                            <div class="card-body text-center p-4">
+                              <div class="position-relative mb-3">
+                                <div class="d-flex justify-content-center align-items-center mb-3">
+                                  {% if loop.index == 1 %}
+                                    <span class="badge bg-warning text-dark fs-5 position-absolute top-0 start-50 translate-middle rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">1</span>
+                                    <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+                                      <i class="fas fa-trophy text-warning fa-2x"></i>
+                                    </div>
+                                  {% elif loop.index == 2 %}
+                                    <span class="badge bg-secondary fs-6 position-absolute top-0 start-50 translate-middle rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">2</span>
+                                    <div class="rounded-circle bg-secondary bg-opacity-10 p-3">
+                                      <i class="fas fa-medal text-secondary fa-2x"></i>
+                                    </div>
+                                  {% else %}
+                                    <span class="badge bg-danger fs-6 position-absolute top-0 start-50 translate-middle rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">3</span>
+                                    <div class="rounded-circle bg-danger bg-opacity-10 p-3">
+                                      <i class="fas fa-award text-danger fa-2x"></i>
+                                    </div>
+                                  {% endif %}
+                                </div>
+                              </div>
+                              
+                              <h5 class="card-title mb-2">{{ disinfector.name }}</h5>
+                              
+                              <div class="row text-center mt-3">
+                                <div class="col-6">
+                                  <div class="p-2 bg-light rounded">
+                                    <div class="text-primary fw-bold fs-4">{{ disinfector.disinfection_count }}</div>
+                                    <small class="text-muted">заявок</small>
+                                  </div>
+                                </div>
+                                <div class="col-6">
+                                  <div class="p-2 bg-light rounded">
+                                    <div class="text-success fw-bold fs-4">{{ "%.0f"|format(disinfector.total_area) }}</div>
+                                    <small class="text-muted">м²</small>
+                                  </div>
+                                </div>
+                                
+                              </div>
+                              <div class="mt-3">
+                                
+                                <small class="text-muted">
+                                  <i class="fas fa-chart-line me-1"></i>
+                                  Средняя площадь: {{ "%.1f"|format(disinfector.total_area/disinfector.disinfection_count) if disinfector.disinfection_count > 0 else 0 }} м²
+                                </small>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {% endfor %}
+                    {% else %}
+                      <div class="col-12">
+                        <div class="alert alert-info text-center">
+                          <i class="fas fa-info-circle me-2"></i>
+                          Нет данных о дезинфекторах за выбранный период
+                        </div>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- График дезинфекторов -->
+              <div class="row mt-5">
+                <div class="col-12">
+                  
+                      <div class="chart-container" style="position: relative; height:600px;">
+                        <canvas id="disinfectorsChart"></canvas>
+                      </div>
+                    
+                </div>
+              </div>
+              
+              
+            {% endif %}
+          </div>
+           <!-- Конец disinfectorsContainer -->
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}{% assets 'application_dashboard_js' %}
+<script src="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.js"></script>
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
+<script>
+// Передаем начальные данные в глобальную переменную с сохранением всех настроек
+window.dashboardInitialData = {
+    monthly: {
+        months: {{ months|tojson }},
+        total_values: {{ total_values|tojson }},
+        completed_values: {{ completed_values|tojson }}
+    },
+    areas: {
+        areas_labels: {{ areas_labels|tojson }},
+        areas_total_values: {{ areas_total_values|tojson }}
+    },
+    focus: {
+        focus_labels: {{ focus_labels|tojson }},
+        area_labelsf: {{ area_labelsf|tojson }},
+        focus_total_values_list: {{ focus_total_values_list|tojson }}
+    },
+    areasDin: {
+        areas_labels: {{ areas_labels|tojson }},
+        areas_total_values: {{ areas_total_values|tojson }},
+        areas_completed_values: {{ areas_completed_values|tojson }}
+    }
+    {% if current_user.user_type != 'doctor' and top_disinfectors %}
+    , disinfectors: {
+        top_disinfectors: {{ top_disinfectors|tojson }}
+    }
+    {% endif %}
+};
+
+// Конфигурации диаграмм для сохранения настроек
+window.chartConfigs = {
+    monthly: {
+        type: 'bar',
+        options: {
+            animation: {
+                duration: 800,
+                easing: 'easeOutQuart',
+                onProgress: function(animation) {
+                    // Прогресс анимации
+                },
+                onComplete: function() {
+                    // Анимация завершена
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                tooltip: {
+                    animation: {
+                        duration: 300
+                    }
+                }
+            }
+        },
+        datasets: [
+            {
+                label: 'Поступившие заявки',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutQuart'
+                }
+            },
+            {
+                label: 'Исполненные заявки',
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1,
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutQuart'
+                }
+            }
+        ]
+    },
+    areas: {
+        type: 'polarArea',
+        options: {
+            animation: {
+                animateRotate: true,
+                animateScale: true,
+                duration: 1000,
+                easing: 'easeOutQuart'
+            }
+        },
+        datasets: [{
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 205, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 99, 71, 0.2)',
+                'rgba(0, 255, 0, 0.2)',
+                'rgba(255, 165, 0, 0.2)',
+                'rgba(128, 0, 128, 0.2)',
+                'rgba(0, 128, 128, 0.2)',
+                'rgba(0, 0, 255, 0.2)'
+            ]
+        }]
+    },
+    focus: {
+        type: 'bar',
+        options: {
+            animation: {
+                duration: 800,
+                easing: 'easeOutQuart',
+                onProgress: function(animation) {
+                    // Кастомная анимация для каждого бара
+                }
+            },
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Количество заявок'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Эпидемические группы'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                }
+            }
+        }
+    },
+    areasDin: {
+        type: 'bar',
+        options: {
+            animation: {
+                duration: 800,
+                easing: 'easeOutQuart'
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        },
+        datasets: [
+            {
+                label: 'Поступившие заявки',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'Исполненные заявки',
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }
+        ]
+    },
+    disinfectors: {
+        type: 'bar',
+        options: {
+            animation: {
+                duration: 800,
+                easing: 'easeOutQuart'
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Топ дезинфекторов по выполненным работам',
+                    font: { size: 16 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.datasetIndex === 0) {
+                                label += context.parsed.y + ' заявок';
+                            } else {
+                                label += context.parsed.y.toFixed(1) + ' м²';
+                            }
+                            return label;
+                        },
+                        afterLabel: function(context) {
+                            if (context.datasetIndex === 0) {
+                                const disinfectorName = context.label;
+                                const disinfectorData = data.top_disinfectors.find(d => d.name === disinfectorName);
+                                if (disinfectorData && disinfectorData.total_area > 0) {
+                                    const avgArea = disinfectorData.total_area / disinfectorData.disinfection_count;
+                                    return `Средняя площадь на заявку: ${avgArea.toFixed(1)} м²`;
+                                }
+                            }
+                        }
+                    }
+                },
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 0
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Количество заявок'
+                    },
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Площадь (м²)'
+                    },
+                    beginAtZero: true,
+                    grid: {
+                        drawOnChartArea: false
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value.toFixed(0) + ' м²';
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
+// Инициализируем дашборд после загрузки DOM
+document.addEventListener('DOMContentLoaded', function() {
+    initDashboard();
+});
+</script>
+{% endblock %}

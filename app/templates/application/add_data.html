@@ -1,0 +1,95 @@
+{% extends "main/base.html" %} {% block title %}Редактирование заявки {%endblock
+%}{% block style %}  {% endblock %} {% block content %}
+<!-- Header -->
+<div class="container py-4 py-md-5 py-xl-6 mb-sm-4 mb-xxl-5">
+  <div class="col-lg-8 text-center mx-auto">
+    <h1 class="display-4">Заявка №{{ application.application_number }}</h1>
+    <p class="lead">{{ application.address }}</p>
+  </div>
+</div>
+<div class="bg-skew bg-skew-light min-vh-75">
+  <!-- Form -->
+  <div class="container py-4">
+    <div class="col-lg text-center text-lg-start">
+      {% include 'main/_flash.html' %}
+      <form method="post">
+        <!--enctype="multipart/form-data" если понадобиться загрузить аватар или файл-->
+        {{ form.hidden_tag() }}
+        <div class="mb-4">
+          <label for="disinfection_date" class="form-label text-uppercase"
+            >Дата проведения:</label
+          >
+          {{ form.disinfection_date(class="form-control",
+          id="disinfection_date", placeholder="Введите дату дезинфекции") }}
+        </div>
+        <div class="checkbox-wrapper-1 mb-4">
+          <input
+            id="rejection"
+            class="substituted"
+            type="checkbox"
+            aria-hidden="true"
+            onchange="toggleReasonField()"
+          />
+          <label for="rejection">Отказ</label>
+        </div>
+        <div class="mb-4" id="reasonField" style="display: none">
+          <label for="rejection_reason" class="form-label text-uppercase"
+            >Причина отказа:</label
+          >
+          {{ form.rejection_reason(class="form-control", id="rejection_reason",
+          placeholder="Введите причину отказа") }}
+        </div>
+        <div class="mb-4" id="areaField" style="display: none">
+          <div class="row d-flex justify-content-between">
+            <div class="col-6">
+          <label for="area_size" class="form-label text-uppercase"
+            >Введите площадь помещения:</label
+          >
+          {{ form.area_size(class="form-control", id="area_size",
+          placeholder="кв.м.") }}
+            </div>
+            <div class="col-6">
+          <label for="swab_testing" class="form-label text-uppercase"
+            >Введите количество смывов:</label
+          >
+          {{ form.swab_testing(class="form-control", id="area_size",
+          placeholder="пробы в шт.") }}
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4" id="volumeField" style="display: none">
+          <label for="volume_size" class="form-label text-uppercase"
+            >Объём помещения:</label
+          >
+          {{ form.volume_size(class="form-control", id="volume_size",
+          placeholder="куб.м.") }}
+        </div>
+        <div class="mb-4" id="sprayingField" style="display: none">
+          <label for="spraying_time" class="form-label text-uppercase"
+            >Время раcпыления:</label
+          >
+          {{ form.spraying_time(class="form-control", id="spraying_time",
+          placeholder="мин.") }}
+        </div>
+        <!-- После поля spraying_time добавить: -->
+<div class="mb-4" id="disinfectorsField">
+    <label for="disinfectors_input" class="form-label text-uppercase">
+        Дезинфекторы (ФИО через запятую):
+    </label>
+    {{ form.disinfectors_input(class="form-control", id="disinfectors_input", 
+       placeholder="Введите ФИО дезинфекторов через запятую") }}
+    <div id="disinfectors-suggestions" class="list-group position-absolute" style="z-index: 1000; display: none;"></div>
+    <small class="form-text text-muted">
+        Можно выбрать из списка или ввести нового
+    </small>
+</div>
+
+        {{ form.submit(class="btn btn-primary rounded-pill w-100 mb-4") }}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block script %}{% assets 'application_add_data_js' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}{% endblock %}

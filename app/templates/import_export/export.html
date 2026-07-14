@@ -1,0 +1,90 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Экспорт данных в Excel</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5>Информация об экспорте:</h5>
+                        <ul>
+                            <li>Экспортируются все данные за выбранный период</li>
+                            <li>Файл будет содержать все поля заявок</li>
+                            <li>Для экспорта за другой период перейдите на страницу дашборда</li>
+                        </ul>
+                    </div>
+                    
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            <label for="period" class="form-label">Период экспорта</label>
+                            {{ form.period(class="form-select") }}
+                            {% if form.period.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.period.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="year" class="form-label">Год</label>
+                            {{ form.year(class="form-select") }}
+                            {% if form.year.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.year.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('dashboard.all') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Назад к дашборду
+                            </a>
+                            {{ form.submit(class="btn btn-success", id="export-btn") }}
+                        </div>
+                    </form>
+                    
+                    <hr>
+                    
+                    <div class="mt-3">
+                        <h5>Быстрый экспорт:</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ url_for('import_export.export_excel', period='месяц') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-file-excel"></i> Текущий месяц
+                            </a>
+                            <a href="{{ url_for('import_export.export_excel', period='год') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-file-excel"></i> Текущий год
+                            </a>
+                            <a href="{{ url_for('import_export.export_excel', period='квартал') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-file-excel"></i> Текущий квартал
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const exportBtn = document.getElementById('export-btn');
+    
+    exportBtn.addEventListener('click', function(e) {
+        // Показываем индикатор загрузки
+        exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Экспорт...';
+        exportBtn.disabled = true;
+    });
+});
+</script>
+{% endblock %}

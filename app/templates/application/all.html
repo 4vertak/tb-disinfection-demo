@@ -1,0 +1,417 @@
+{% extends "main/base.html" %} {% block style %}{% assets 'application_all_css'
+%}
+<link
+  href="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.css"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="{{ ASSET_URL }}" />{% endassets %} {% endblock %}
+{% block title %}Заявки{% endblock title %} {% block content %}
+
+<div class="container py-5">
+  <div class="content">
+    <div class="db-pb-5">
+      <div class="row g-4">
+        <div class="col-12 col-xxl-6">
+          <div class="db-mb-8">
+            <h2 class="mb-2">Панель управления заявками</h2>
+            <h5 class="text-secondary fw-semibold">
+              Вот что происходит прямо сейчас
+            </h5>
+          </div>
+          <div class="d-flex flex-row flex-wrap align-items-center g-4">
+            <div class="p-4">
+              <div class="d-flex align-items-center">
+                <span
+                  class="fa-stack"
+                  style="min-height: 46px; min-width: 46px"
+                >
+                  <span
+                    class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-info-light"
+                    data-fa-transform="shrink-5.5 down-1 rotate--10 left-5"
+                  ></span>
+
+                  <span
+                    class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-info"
+                    data-fa-transform="shrink-6 up-2 left-2"
+                  ></span>
+                  <span
+                    class="fa-stack-1x fa-solid fa-star fa-xl text-info"
+                    data-fa-transform="up-5.5 right-8"
+                  ></span>
+                </span>
+                <div class="ms-3 p-2">
+                  <h3 class="mb-0 text-center">
+                    <span id="total-applications"
+                      >{{ total_info.get('total_with_carry_over', total_info['total']) }}</span
+                    >
+                  </h3>
+                  <p class="text-body-secondary fs-9 mb-1">Поступило</p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="d-flex align-items-center">
+                <span
+                  class="fa-stack"
+                  style="min-height: 46px; min-width: 46px"
+                >
+                  <span
+                    class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-warning-light"
+                    data-fa-transform="shrink-5.5 down-1 rotate--10 left-5"
+                  ></span>
+
+                  <span
+                    class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-warning"
+                    data-fa-transform="shrink-6 up-2 left-2"
+                  ></span>
+                  <span
+                    class="fa-stack-1x fa-solid fa-cog fa-xl text-warning"
+                    data-fa-transform="up-5.5 right-8"
+                  ></span>
+                </span>
+                <div class="ms-3 p-2">
+                  <h3 class="mb-1 text-center">
+                    <span id="application-in-progress"
+                      >{{ total_info['in_progress'] }}</span
+                    >
+                    <span id="in-progress-text"></span>
+                  </h3>
+                  <p class="text-body-secondary fs-9 mb-1">В работе</p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="d-flex align-items-center">
+                <span
+                  class="fa-stack"
+                  style="min-height: 46px; min-width: 46px"
+                >
+                  <span
+                    class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-success-light"
+                    data-fa-transform="shrink-5.5 down-1 rotate--10 left-5"
+                  ></span>
+
+                  <span
+                    class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-success"
+                    data-fa-transform="shrink-6 up-2 left-2"
+                  ></span>
+                  <span
+                    class="fa-stack-1x fa-solid fa-check fa-xl text-success"
+                    data-fa-transform="up-5.5 right-8"
+                  ></span>
+                </span>
+                <div class="ms-3 p-2">
+                  <h3 class="mb-0 text-center"><span id="applications-completed"
+                    >{{ total_info['completed'] }}<span id="completed-text"></span></h3>
+                  <p class="text-body-secondary fs-9 mb-1">Исполнено</p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="d-flex align-items-center">
+                <span
+                  class="fa-stack"
+                  style="min-height: 46px; min-width: 46px"
+                >
+                  <span
+                    class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-danger-light"
+                    data-fa-transform="shrink-5.5 down-1 rotate--10 left-5"
+                  ></span>
+
+                  <span
+                    class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-danger"
+                    data-fa-transform="shrink-6 up-2 left-2"
+                  ></span>
+                  <span
+                    class="fa-stack-1x fa-solid fa-remove fa-xl text-danger"
+                    data-fa-transform="up-5.5 right-8"
+                  ></span>
+                </span>
+                <div class="ms-3 p-2">
+                  <h3 class="mb-0 text-center">
+                    <span id="applications-refusal">{{ total_info['refusal'] }}</span> <!-- Изменил ID -->
+                  </h3>
+                  <p class="text-body-secondary fs-9 mb-1">Отказов</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          
+          <hr class="bg-body-secondary mb-2 mt-1" />
+          {% include 'main/_flash.html' %}
+          {% if current_user.user_type == "disinfector"%}
+          <div class="card">
+            <div class="container">
+              <table id="myTableDoctors">
+                <thead>
+                  <tr>
+                    <th style="text-align: center">№ заявки</th>
+                    <th style="text-align: center">Дата подачи</th>
+                    <th style="text-align: center">№ участка</th>
+                    <th style="text-align: center">Пациент</th>
+                    <th style="text-align: center">Дом.адрес</th>
+                    <th style="text-align: center">Статус</th>
+                    <th style="text-align: center">Дата исполнения</th>
+                    <th style="text-align: center">Площадь, в кв.м.</th>
+                    <th style="text-align: center">Действия</th>
+                    
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for application,
+                  disinfection, area, doctor in applications %}
+                  <tr>
+                    <td style="text-align: center">{{ application.application_number }}</td>
+                    <td style="text-align: center">
+                      {{ application.submission_date|localtime }}
+                    </td>
+                    <td style="text-align: center">{{ area.name_area }}</td>
+                    <td style="text-align: center">
+                      {{ application.patient_full_name }}
+                    </td>
+                    <td style="text-align: center">
+                      {{ application.address }}
+                    </td>
+                    <td style="text-align: center">
+                      {% if application.status == 'completed' %}
+                      <span
+                        class="badge badge-custom fs-10 badge-custom-success"
+                        ><span class="badge-label">Исполнено</span
+                        ><svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16px"
+                          height="16px"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="feather feather-check ms-1"
+                          style="height: 12.8px; width: 12.8px"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline></svg
+                      ></span>
+                      {% elif application.status == 'refusal' %}
+                      <span class="badge badge-custom fs-10 badge-custom-info"
+                        ><span class="badge-label">Отказ</span
+                        ><svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16px"
+                          height="16px"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="feather feather-check ms-1"
+                          style="height: 12.8px; width: 12.8px"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline></svg
+                      ></span>
+                      {% else %}
+                      <span
+                        class="badge badge-custom fs-10 badge-custom-warning"
+                        ><span class="badge-label">В работе</span
+                        ><svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16px"
+                          height="16px"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="feather feather-clock ms-1"
+                          style="height: 12.8px; width: 12.8px"
+                        >
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline
+                            points="12 6 12 12 16 14"
+                          ></polyline></svg></span
+                      >{% endif %}
+                    </td>
+                    <td style="text-align: center">
+                      {% if application.status == 'completed' or application.status == 'refusal' %}
+                      {{ disinfection.disinfection_date|localtime }}
+                      {% else %} -
+                      {% endif %}
+                    </td>
+                    <td style="text-align: center">
+                      {% if application.status == 'completed' %}
+                      {{ disinfection.area_size }}
+                      {% else %} 0.0
+                      {% endif %}
+                    </td>
+                    <td style="text-align: center; white-space: nowrap;">
+                      <a
+                        href="{{ url_for('disinfection.add_data', id=application.id) }}"
+                        class="btn btn-sm btn-outline-light"
+                        ><span
+                          class="fa fa-pen-to-square fa-xl text-info"
+                        ></span
+                      ></a>
+                      <a
+                        href="{{ url_for('application.download_application', id=application.id) }}"
+                        class="btn btn-sm btn-outline-light"
+                        ><span class="fa fa-download fa-xl text-info"></span
+                      ></a>
+                    </td>
+                    
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {% else %}
+          <div class="card">
+            <div class="container">
+              <table id="myTableDoctors">
+                <thead>
+                  <tr>
+                    <th style="text-align: center">№ заявки</th>
+                    <th style="text-align: center">Дата подачи</th>
+                    <th style="text-align: center">Пациент</th>
+                    <th style="text-align: center">Дом.адрес</th>
+                    <th style="text-align: center">Тел.</th>
+                    <th style="text-align: center">Группа ДУ</th>
+                    <th style="text-align: center">№ участка</th>
+                    <th style="text-align: center">Статус</th>
+                    <th style="text-align: center">Действия</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for application,
+                  disinfection, area, doctor in applications %}
+                  <tr>
+                    <td style="text-align: center">{{ application.application_number }}</td>
+                    <td style="text-align: center">
+                      {{ application.submission_date|localtime }}
+                    </td>
+                    <td style="text-align: center">
+                      {{ application.patient_full_name }}
+                    </td>
+                    <td style="text-align: center">
+                      {{ application.address }}
+                    </td>
+                    <td style="text-align: center">
+                      {{ application.contact_phone }}
+                    </td>
+                    <td style="text-align: center">
+                      {{ application.gdu }}
+                    </td>
+                    <td style="text-align: center">{{ area.name_area }}</td>
+                    <td style="text-align: center">
+                      {% if application.status == 'completed' %}
+                      <span
+                        class="badge badge-custom fs-10 badge-custom-success"
+                        ><span class="badge-label">Исполнено</span
+                        ><svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16px"
+                          height="16px"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="feather feather-check ms-1"
+                          style="height: 12.8px; width: 12.8px"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline></svg
+                      ></span>
+                      {% elif application.status == 'refusal' %}
+                      <span class="badge badge-custom fs-10 badge-custom-info"
+                        ><span class="badge-label">Отказ</span
+                        ><svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16px"
+                          height="16px"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="feather feather-check ms-1"
+                          style="height: 12.8px; width: 12.8px"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline></svg
+                      ></span>
+                      {% else %}
+                      <span
+                        class="badge badge-custom fs-10 badge-custom-warning"
+                        ><span class="badge-label">В работе</span
+                        ><svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16px"
+                          height="16px"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="feather feather-clock ms-1"
+                          style="height: 12.8px; width: 12.8px"
+                        >
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline
+                            points="12 6 12 12 16 14"
+                          ></polyline></svg></span
+                      >{% endif %}
+                    </td>
+                    <td style="text-align: center; white-space: nowrap;">
+                      {% if current_user.user_type == "doctor" and current_user.id == application.user_id%}
+                        {% if application.status == 'incompleted' %}
+                      <a
+                        href="{{ url_for('application.update', id=application.id) }}"
+                        class="btn btn-sm btn-outline-light"
+                        ><span class="fa fa-edit fa-xl text-info"></span
+                      ></a>
+                      <a
+                        href="{{ url_for('application.download_application', id=application.id) }}"
+                        class="btn btn-sm btn-outline-light"
+                        ><span class="fa fa-download fa-xl text-info"></span
+                      ></a>
+                        {% endif %}
+                      {% elif current_user.user_type == "admin" %}
+                      <a
+                        href="{{ url_for('application.update', id=application.id) }}"
+                        class="btn btn-sm btn-outline-light"
+                        ><span class="fa fa-edit fa-xl text-info"></span
+                      ></a>
+                      <a
+                        href="{{ url_for('application.download_application', id=application.id) }}"
+                        class="btn btn-sm btn-outline-light"
+                        ><span class="fa fa-download fa-xl text-info"></span
+                      ></a>
+                      <a
+                        href="{{ url_for('application.delete_application', id=application.id) }}"
+                        class="btn btn-sm btn-outline-light"
+                        ><span class="fa fa-trash fa-xl text-danger"></span
+                      ></a>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block script %}{% assets 'application_all_js' %}
+<script src="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.js"></script>
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}{% endblock %}

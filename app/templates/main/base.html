@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}{% endblock %}</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="{{ url_for('static', filename='css/libs/bootstrap.min.css')}}" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='js/libs/jquery.min.js')}}" as="script">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css')}}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/libs/fontawesome.all.min.css')}}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/libs/bootstrap.min.css')}}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/blocks/notification.css')}}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/blocks/ux-improvements.css')}}"/>
+    <!-- Сезонные эффекты подключаются через JS -->
+    
+    {% block style %}{% endblock %}
+</head>
+
+<body>
+    <header class="header">
+
+{% include 'main/_header.html' %}</header>
+    <main id="main">{% block content %}{% endblock %}</main>
+    <footer class="pt-5">{% include 'main/_footer.html' %}</footer>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/libs/jquery.min.js')}}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    
+    <script>
+// Глобальные переменные для уведомлений
+window.currentUserId = "{{ current_user.id if current_user.is_authenticated else '' }}";
+window.currentUserType = "{{ current_user.user_type if current_user.is_authenticated else '' }}";
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded - initializing components');
+    
+    // Инициализация формы добавления данных (если на странице)
+    if (typeof AddEntryUtils !== 'undefined' && document.getElementById('rejection')) {
+        console.log('Initializing add entry form');
+        AddEntryUtils.initAddEntryForm();
+    }
+    
+    // Инициализация основных компонентов приложения
+    if (typeof applicationCore !== 'undefined') {
+        console.log('Initializing application core');
+       // applicationCore.init();
+    }
+});
+</script>
+<!-- Подключаем утилиты -->
+    <script src="{{ url_for('static', filename='js/blocks/js_notifications.js')}}"></script>
+    {% block script %}{% endblock %}
+<!-- Сезонные эффекты -->
+<script src="{{ url_for('static', filename='js/blocks/seasonal-effects.js')}}"></script>
+
+</body>
+</html>

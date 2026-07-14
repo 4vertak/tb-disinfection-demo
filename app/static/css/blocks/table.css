@@ -1,0 +1,30 @@
+@charset "UTF-8";
+
+
+.container_table {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 0 10px;
+  font-family: Montserrat, Arial, sans-serif;
+  margin: 10px 0;
+}
+#dt-table_wrapper {
+  width: 35%;
+  margin-right: 2%;
+}
+#chart {
+  width: 63%;
+}
+table {
+  text-align: left;
+}
+@media screen and (max-width: 1200px) {
+  #dt-table_wrapper,
+  #chart {
+    width: 100%;
+  }
+  #dt-table_wrapper {
+    margin-right: 0;
+  }
+}

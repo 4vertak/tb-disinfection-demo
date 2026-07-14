@@ -1,0 +1,100 @@
+{% extends "main/base.html" %} {% block title %}Регистрация{% endblock %} {%
+block style %}{% assets 'user_update_css' %}<link
+  rel="stylesheet"
+  href="{{ ASSET_URL }}"
+/>{% endassets %}{% endblock %} {% block content %}
+<!-- Header -->
+<div class="container py-4 py-md-5 py-xl-6 mb-sm-4 mb-xxl-5">
+  <div class="col-lg-8 text-center mx-auto">
+    <h1 class="display-4">Профиль</h1>
+    <p class="lead">Редактируйте поля внизу</p>
+  </div>
+</div>
+<div class="bg-skew bg-skew-light min-vh-75">
+  <!-- Form -->
+  <div class="container py-4">
+    <div class="col-lg text-center text-lg-start">
+      {% include 'main/_flash.html' %}
+      <form method="post">
+        {{ form.hidden_tag() }}
+
+        <!-- Основные поля -->
+        <div class="mb-4">
+          <label for="name" class="form-label text-uppercase"
+            >Имя пользователя:</label
+          >
+          {{ form.name(class="form-control", id="name") }}
+        </div>
+
+        <div class="mb-4">
+          <label for="login" class="form-label text-uppercase">Логин:</label>
+          {{ form.login(class="form-control", id="login") }}
+        </div>
+ {% if current_user.user_type == 'admin' and current_user.id
+        != user.id%} 
+        <div class="mb-4">
+          <label for="user_type" class="form-label text-uppercase"
+            >Роль пользователя:</label
+          >
+          {{ form.user_type(class='form-control', id="user_type",
+          onchange="toggleAreaField()") }}
+        </div>
+ {% endif%} 
+        <!-- Поля для смены пароля -->
+        <div class="mb-4">
+          <div class="form-check">
+            {{ form.change_password(class="form-check-input",
+            id="change_password") }}
+            <label class="form-check-label" for="change_password"
+              >Изменить пароль</label
+            >
+          </div>
+        </div>
+
+        <div id="password_fields" style="display: none">
+          <!-- Поле текущего пароля (отображается только для не-админов) -->
+          <div
+            class="mb-4 current-password-field"
+            {%
+            if
+            is_admin
+            %}style="display: none;"
+            {%
+            endif
+            %}
+          >
+            <label for="current_password" class="form-label text-uppercase"
+              >Текущий пароль:</label
+            >
+            {{ form.current_password(class="form-control",
+            id="current_password") }}
+          </div>
+
+          <!-- Обязательные поля для нового пароля -->
+          <div class="mb-4">
+            <label for="new_password" class="form-label text-uppercase"
+              >Новый пароль:</label
+            >
+            {{ form.new_password(class="form-control", id="new_password") }}
+            <div class="form-text">
+              Длина пароля должна быть не менее 8 символов
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="confirm_new_password" class="form-label text-uppercase"
+              >Подтвердите новый пароль:</label
+            >
+            {{ form.confirm_new_password(class="form-control",
+            id="confirm_new_password") }}
+          </div>
+        </div>
+        {{ form.submit(class="btn btn-primary rounded-pill w-100 mb-4") }}
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block script %}{% assets 'user_update_js' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}{% endblock %}

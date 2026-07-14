@@ -1,0 +1,73 @@
+{% extends "main/base.html" %} {% block style %}{% assets
+'application_index_css' %}<link rel="stylesheet" href="{{ ASSET_URL }}" />{%
+endassets %}{% endblock %} {% block title %}Главная{% endblock %} {% block
+content %}
+<div class="container py-5">
+  {% include 'main/_flash.html' %}
+  <div class="row align-items-lg-center">
+    <div class="col-lg text-center text-lg-start">
+      <h1 class="display-4 mb-4">Дезинфекция - ваш шаг к безопасной среде!</h1>
+      <p class="lead text-secondary">
+        Сервис по обработке заявок на заключительную дезинфекцию.
+      </p>
+      <div
+        class="d-flex flex-column flex-sm-row align-items-center justify-content-center justify-content-lg-start gap-3"
+      >
+        <!--<a class="btn btn-primary rounded-pill" href="{{ url_for('user.login') }}">Войти</a>-->
+        <!--<a class="link-cta" href="#">Зарегистрироваться</a>-->
+      </div>
+    </div>
+    <div class="col-lg">
+      <img
+        src="{{ url_for('static', filename='img/revenue.svg')}}"
+        class="img-fluid d-none d-lg-block"
+        alt=""
+      />
+    </div>
+  </div>
+</div>
+
+  
+  <div class="divider mx-auto"></div>
+
+  <div class="container py-5">
+    <h2 class="text-center mb-5">Виды дезинфекции</h2>
+    <div class="row">
+      <div class="col-md">
+        <blockquote class="bg-white rounded shadow mb-4 p-4 p-lg-5 text-center h-100">
+          <h3 class="text-center h5 mb-2">Профилактическая</h3>
+          <p class="text-secondary">
+            Проводится независимо от наличия заразных заболеваний. В учебных и
+            детских дошкольных учреждениях (школах, бассейнах, банях, душевых, в
+            местах общего пользования).
+          </p>
+        </blockquote>
+      </div>
+      <div class="col-md">
+        <blockquote class="bg-white rounded shadow mb-4 p-4 p-lg-5 text-center h-100">
+          <h3 class="text-center h5 mb-2">Текущая</h3>
+          <p class="text-secondary">
+            Действие которой распространяется на весь период нахождения
+            инфекционного больного в помещении (дома, больнице). Уборка,
+            замачивание посуды, белья
+          </p>
+        </blockquote>
+      </div>
+      <div class="col-md">
+        <blockquote class="bg-white rounded shadow mb-4 p-4 p-lg-5 text-center h-100">
+          <h3 class="text-center h5 mb-2">Заключительная</h3>
+          <p class="text-secondary">
+            Осуществляется после госпитализации, выздоровления или смерти
+            больного. Проводятся все те же мероприятия, что и при текущей
+            дезинфекции.
+          </p>
+        </blockquote>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+{% endblock %} {% block script %}{% assets 'application_index_js' %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}{% endblock %}

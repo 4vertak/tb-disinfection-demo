@@ -1,0 +1,199 @@
+/*  Notification CSS */
+
+/* Toast уведомления в правом нижнем углу */
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1060;
+    max-width: 400px;
+}
+
+.toast-notification {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 10px;
+    max-width: 400px;
+    min-width: 300px;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.toast-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 7px 7px 0 0;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.toast-title {
+    font-weight: 600;
+    color: #212529;
+    font-size: 0.9rem;
+    margin: 0;
+    flex: 1;
+}
+
+.toast-body {
+    padding: 12px;
+    color: #495057;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.toast-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    justify-content: flex-end;
+}
+
+/* Иконка колокольчика */
+.notification-bell {
+    position: relative;
+    color: #6c757d;
+    transition: color 0.3s ease;
+    border: none;
+    background: none;
+    padding: 8px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-bell:hover {
+    background-color: #f8f9fa;
+    color: #495057;
+}
+
+.notification-bell.has-notifications {
+    color: #007bff;
+}
+
+.notification-count {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    background: #dc3545;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.bell-icon {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.2s ease;
+}
+
+.notification-bell:hover .bell-icon {
+    transform: scale(1.1);
+}
+
+/* Анимации */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.toast-hiding {
+    animation: slideOutRight 0.3s ease-in forwards;
+}
+
+/* Кнопки */
+.btn-toast {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #6c757d;
+    background: white;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-toast:hover {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-toast-primary {
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.btn-toast-primary:hover {
+    background: #007bff;
+    color: white;
+}
+
+.btn-toast-success {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+.btn-toast-success:hover {
+    background: #28a745;
+    color: white;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .toast-container {
+        right: 10px;
+        bottom: 10px;
+        max-width: calc(100vw - 20px);
+    }
+
+    .toast-notification {
+        min-width: unset;
+        width: 100%;
+    }
+}
